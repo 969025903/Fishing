@@ -6,14 +6,13 @@ import lombok.Data;
 public class RequestRob extends Message {
     private String serviceName;
     private String method;
-    private Class<?> returnType;
     private Class[] parameterTypes;
     private Object[] parameterValue;
 
-    public RequestRob(String serviceName,String method, Class<?> returnType, Class[] parameterTypes, Object[] parameterValue) {
+    public RequestRob(int sequenceId,String serviceName,String method, Class[] parameterTypes, Object[] parameterValue) {
+        super.setSequenceId(sequenceId);
         this.serviceName = serviceName;
         this.method = method;
-        this.returnType = returnType;
         this.parameterTypes = parameterTypes;
         this.parameterValue = parameterValue;
     }

@@ -2,6 +2,7 @@ package com.genius.pool;
 
 import com.genius.config.Config;
 import com.genius.pool.handler.FishPoolHandler;
+import com.genius.virgin.FishCenter;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -20,10 +21,9 @@ public class FishPool {
     private NioEventLoopGroup boss = new NioEventLoopGroup();
     private NioEventLoopGroup worker = new NioEventLoopGroup();
     private ServerBootstrap OpenPool(){
-       if(pool==null){
+       if(pool == null){
            synchronized (lock){
-               if (pool==null) {
-
+               if (pool == null) {
                    LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
                    MessageCodec MESSAGE_CODEC = new MessageCodec();
                    FishPoolHandler FISH_POOL_HANDLER = new FishPoolHandler();
@@ -34,8 +34,8 @@ public class FishPool {
                            @Override
                            protected void initChannel(SocketChannel ch) throws Exception {
                                ch.pipeline().addLast(new ProcotolFrameDecoder());
-                               ch.pipeline().addLast(LOGGING_HANDLER);
                                ch.pipeline().addLast(MESSAGE_CODEC);
+                               ch.pipeline().addLast(LOGGING_HANDLER);
                                ch.pipeline().addLast(FISH_POOL_HANDLER);
                            }
                        });
@@ -47,6 +47,7 @@ public class FishPool {
     }
 
     public void start(){
+        FishCenter.start();
         OpenPool();
         try {
             Channel channel = pool.bind(port).sync().channel();

@@ -23,7 +23,6 @@ public class NacosServerDiscovery {
      */
     public InetSocketAddress getService(String serviceName) throws NacosException {
         List<Instance> instanceList = NacosUtils.getAllInstance(serviceName);
-        System.out.println(serviceName);
         if (instanceList.size() == 0) {
             throw new RuntimeException("找不到对应服务");
         }

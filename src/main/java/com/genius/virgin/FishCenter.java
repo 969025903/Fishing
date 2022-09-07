@@ -9,22 +9,32 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class FishCenter {
 
     private static String scanPath = Config.getScanPath();
 
-    private static ConcurrentHashMap<Class<?>,Object> classMap = new ConcurrentHashMap<>();
+    /**
+     * 本地注册表
+     */
+    private static ConcurrentHashMap<String,Object> classMap = new ConcurrentHashMap<>();
 
-    static{
+
+    /**
+     * 开始注册并将注解上的名字上传到Nacos,与本地注册表中
+     */
+    public static void start(){
         try {
             try {
                 for (Class<?> clazz:getAllService()) {
-                    classMap.put(clazz,clazz.getDeclaredConstructor().newInstance());
-                    NacosServerRegistry.register(clazz.getAnnotation(LetAlive.class).name(), new InetSocketAddress(InetUtils.getLocalHostIP(),Config.serverPort()));
+                    String serviceName = clazz.getAnnotation(LetAlive.class).name();
+                    classMap.put(serviceName,clazz.getDeclaredConstructor().newInstance());
+                    NacosServerRegistry.register(serviceName, new InetSocketAddress(InetUtils.getLocalHostIP(),Config.serverPort()));
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -34,9 +44,13 @@ public class FishCenter {
         }catch (InstantiationException  |NoSuchMethodException | IOException e){
             e.printStackTrace();
         }
-
     }
 
+    /**
+     * 获取所有被注解的注册服务
+     * @return
+     * @throws IOException
+     */
     public static Set<Class<?>> getAllService() throws IOException{
         Set<Class<?>> classSet = ClassUtils.getClass(scanPath, (packUrl) -> {
             if (packUrl.endsWith(".class") || packUrl.endsWith(".java")) {
@@ -53,7 +67,7 @@ public class FishCenter {
         return classSet;
     }
 
-    public static <T> T getFish(Class<?> clazz){
+    public static <T> T getFish(String clazz){
         return (T) classMap.get(clazz);
     }
 }
