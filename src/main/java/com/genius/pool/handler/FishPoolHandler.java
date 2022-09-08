@@ -15,23 +15,19 @@ public class FishPoolHandler extends SimpleChannelInboundHandler<RequestRob> {
         ResponseFish fish = new ResponseFish();
         System.out.println("开启远程调用");
         try{
-            giveFish(msg, fish);
+            fish.setSequenceId(msg.getSequenceId());
+            Object tempFish = FishCenter.getFish(msg.getServiceName());
+            Object[] value = msg.getParameterValue();
+            Class[] types = msg.getParameterTypes();
+            Method method = tempFish.getClass().getMethod(msg.getMethod(),types);
+            Object invoke = method.invoke(tempFish,value);
+            fish.setReturnValue(invoke);
         }catch (Exception e){
             e.printStackTrace();
             String message = e.getCause().getMessage();
             fish.setExceptionValue(new Exception("远程调用出错:"+message));
+            System.out.println(fish.getExceptionValue().getMessage());
         }
         ctx.writeAndFlush(fish);
-    }
-
-    private void giveFish(RequestRob msg, ResponseFish fish) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        fish.setSequenceId(msg.getSequenceId());
-        Object tempFish = FishCenter.getFish(msg.getServiceName());
-        for (Class parameterType : msg.getParameterTypes()) {
-            System.out.println(parameterType);
-        }
-        Method method = tempFish.getClass().getMethod(msg.getMethod(), msg.getParameterTypes());
-        Object invoke = method.invoke(tempFish,msg.getParameterValue());
-        fish.setReturnValue(invoke);
     }
 }

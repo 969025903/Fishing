@@ -17,9 +17,7 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, Message> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> outList) throws Exception {
         ByteBuf out = ctx.alloc().buffer();
-        //choose com.genius.protocol version
         out.writeByte(VERSION);
-        //choose serializer algorithm
         out.writeByte(SERIALIZER.ordinal());
         out.writeByte(msg.getMessageType());
         out.writeInt(msg.getSequenceId());

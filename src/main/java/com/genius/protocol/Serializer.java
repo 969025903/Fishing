@@ -21,6 +21,7 @@ public interface Serializer {
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
                     return (T) ois.readObject();
                 } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                     throw new RuntimeException("反序列化失败", e);
                 }
             }
@@ -33,6 +34,7 @@ public interface Serializer {
                     oos.writeObject(object);
                     return bos.toByteArray();
                 } catch (IOException e) {
+                    e.printStackTrace();
                     throw new RuntimeException("序列化失败", e);
                 }
             }
@@ -43,6 +45,7 @@ public interface Serializer {
             public <T> T deserialize(Class<T> clazz, byte[] bytes) {
                 Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new Serializer.ClassCodec()).create();
                 String json = new String(bytes, StandardCharsets.UTF_8);
+                System.out.println(gson.fromJson(json,clazz));
                 return gson.fromJson(json, clazz);
             }
 
@@ -50,6 +53,7 @@ public interface Serializer {
             public <T> byte[] serialize(T object) {
                 Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new Serializer.ClassCodec()).create();
                 String json = gson.toJson(object);
+                System.out.println(json);
                 return json.getBytes(StandardCharsets.UTF_8);
             }
         }

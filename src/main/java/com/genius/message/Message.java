@@ -2,11 +2,12 @@ package com.genius.message;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public abstract class Message {
+public abstract class Message implements Serializable {
 
     public static Class<? extends Message> getMessageClass(Byte messageType) {
         return messageClasses.get(messageType);
